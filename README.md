@@ -1,6 +1,8 @@
 # LibTinyIO
 
-Tiny input/output library written in x86-64 assembly
+Tiny input/output library written in x86-64 assembly.
+
+This is an assignment 2.7 from Igor Zhirkov's book _"Low-Level Programming"_
 
 build with ```
 ./build.sh```

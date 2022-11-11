@@ -5,7 +5,15 @@ global _start
 section .data
 ; for testing purposes
 strTest: db "abcdefABCDEF123", 0
-nlTest: db 10
+
+; constants
+ASCII_NEW_LINE  equ 10
+FILE_STDOUT     equ 0x1
+
+; syscalls
+SYS_WRITE   equ 0x1
+SYS_EXIT    equ 0x3c
+
 
 section .text
 
@@ -17,6 +25,7 @@ call string_length
 ;; print char
 mov rdi, 0x41 ; 'A'
 call print_char
+call print_newline
 
 mov rdi, 1
 jmp exit
@@ -44,16 +53,22 @@ print_char:
     ; args: rdi - character code to print
     push rdi     ; push character code to stack
     xor rax, rax
-    mov rax, 1   ; sys_write
-    mov rsi, rsp ; buf
-    mov rdi, 1   ; stdout
-    mov rdx, 1   ; count
+    mov rax, SYS_WRITE      ; sys_write
+    mov rsi, rsp            ; buf
+    mov rdi, FILE_STDOUT    ; stdout
+    mov rdx, 1              ; count
     syscall
-    pop rdi      ; restore prev state
+    pop rdi                 ; restore prev state
+    ret
+
+print_newline:
+    xor rdi, rdi
+    mov rdi, ASCII_NEW_LINE
+    call print_char
     ret
 
 exit:
-    ; Sends Exit (60) syscall
+    ; Sends Exit (0x3c) syscall
     ; arguments: rdi - exit code
-    mov rax, 60
+    mov rax, SYS_EXIT
     syscall
