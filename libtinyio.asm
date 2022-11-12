@@ -30,12 +30,14 @@ jmp exit
 string_length:
     ; Returns null-terminated string length
     ; arguments: rdi - string ptr
+    push rcx
     mov rax, rdi
     xor rcx, rcx
 .check_null:    
     cmp byte[rax+rcx], 0
     jnz .increment
     mov rax, rcx
+    pop rcx
     ret
 .increment:
     inc rcx
@@ -68,23 +70,13 @@ print_newline:
 print_string:
     ; Prints a null-terminated string
     ; args: rdi - memory location to a c-style string
-
-    xor r10, r10
-    mov r10, rdi
-    xor r8, r8
-.check_for_null:
-    cmp byte[r8+r10], 0
-    jnz .print
-    ret
-.print:
+    call string_length
+    mov rdx, rax ; count
+    mov rsi, rdi
     mov rax, SYS_WRITE
     mov rdi, FD_STDOUT
-    lea rsi, [r8+r10]
-    mov rdx, 1 ; count
     syscall
-    inc r8
-    jmp .check_for_null
-
+    ret
 
 exit:
     ; Sends Exit (0x3c) syscall
