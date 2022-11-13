@@ -5,25 +5,33 @@ global _start
 section .data
 ; for testing purposes
 strTest: db "abcdefABCDEF123", 0
+strNone: db 0
+charTest: db "a"
 
 ; constants
-ASCII_NEW_LINE  equ 10
-FD_STDOUT     equ 0x1
+ASCII_NEW_LINE      equ 0x0a
+FD_STDIN            equ 0x00
+FD_STDOUT           equ 0x01
 
 ; syscalls
-SYS_READ    equ 0x00
-SYS_WRITE   equ 0x01
-SYS_EXIT    equ 0x3c
+SYS_READ            equ 0x00
+SYS_WRITE           equ 0x01
+SYS_EXIT            equ 0x3c
 
+section .bss
+buf: resb 1
 
 section .text
 
 ; ------ for testing ------
 _start:
-mov rdi, strTest
-call print_string
-
-mov rdi, 1
+;mov rdi, strTest
+;call print_string
+call read_char
+mov rdi, rax
+call print_char
+call print_newline
+mov rdi, 0
 jmp exit
 ; --------/_start----------
 
@@ -76,6 +84,23 @@ print_string:
     mov rax, SYS_WRITE
     mov rdi, FD_STDOUT
     syscall
+    ret
+
+read_char:
+    ; Reads one char from stdout into
+    xor rax, rax
+    mov rax, SYS_READ
+    mov rdi, FD_STDIN
+    mov rsi, buf
+    mov rdx, 1
+    syscall
+    ; on EOI -> return 0
+    cmp rax, -1
+    jz .return_zero
+    mov rax, [buf]
+    ret
+.return_zero:
+    mov rax, 0
     ret
 
 exit:

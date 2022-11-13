@@ -1,6 +1,7 @@
 *.o
 *.obj
 *.out
+tests/
 
 # vscode
 .vscode/*
